@@ -1,0 +1,65 @@
+{
+    "machines": [
+        {
+            "id": 0,
+            "name": "macbook",
+            "host": "localhost"
+        },
+        {
+            "id": 1,
+            "name": "cruiser",
+            "host": "192.168.0.115"
+        },
+        {
+            "id": 2,
+            "name": "pyt4",
+            "host": "52.91.105.146"
+        }
+    ],
+    "programs": [
+        {
+            "id": 0,
+            "name": "seq2seq-translate",
+            "params": {
+                "prefixes": ["i am", "you are", "he is", "she is", "we are", "they are"],
+                "hidden_size": 256,
+                "dropout": 0.1
+            }
+        },
+        {
+            "id": 1,
+            "name": "char-rnn-generate",
+            "params": {
+                "hidden_size": 32,
+                "dropout": 0.1
+            }
+        }
+    ],
+    "jobs": [
+        {
+            "id": 0,
+            "program_id": 0,
+            "status": "unassigned",
+            "params": {
+                "dropout": 0.2
+            }
+        },
+        {
+            "id": 1,
+            "program_id": 0,
+            "status": "unassigned",
+            "params": {
+                "hidden_size": 256
+            }
+        },
+        {
+            "id": 2,
+            "program_id": 1,
+            "status": "unassigned",
+            "params": {
+                "hidden_size": 64,
+                "dropout": 0.2
+            }
+        }
+    ]
+}

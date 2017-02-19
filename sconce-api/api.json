@@ -1,0 +1,188 @@
+{
+    "name": "sconce-api",
+    "slug": "api.sconce",
+    "port": 8000,
+    "routes": [
+        {
+            "request": {
+                "method": "get",
+                "path": "/:type.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "find",
+                    "args": [
+                        "$req.params.type",
+                        "$req.query"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "get",
+                "path": "/:type/:id.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "get",
+                    "args": [
+                        "$req.params.type",
+                        "$req.params.id"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "post",
+                "path": "/:type.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "create",
+                    "args": [
+                        "$req.params.type",
+                        "$req.body"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "put",
+                "path": "/:type/:id.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "update",
+                    "args": [
+                        "$req.params.type",
+                        "$req.params.id",
+                        "$req.body"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "delete",
+                "path": "/:type/:id.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "remove",
+                    "args": [
+                        "$req.params.type",
+                        "$req.params.id"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "post",
+                "path": "/jobs/:job_id/claim.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "claimJob",
+                    "args": [
+                        "$req.params.job_id",
+                        "$req.body"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "post",
+                "path": "/jobs/:job_id/points.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:engine",
+                    "method": "createPoint",
+                    "args": [
+                        "$req.params.job_id",
+                        "$req.body"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "post",
+                "path": "/jobs/:job_id/logs.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:engine",
+                    "method": "createLog",
+                    "args": [
+                        "$req.params.job_id",
+                        "$req.body"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "post",
+                "path": "/jobs/:job_id/results.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:engine",
+                    "method": "createResult",
+                    "args": [
+                        "$req.params.job_id",
+                        "$req.body"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        }
+    ]
+}

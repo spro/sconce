@@ -1,0 +1,10 @@
+{
+  "name": "sconce-data",
+  "scripts": {
+    "restart": "pm2 restart sconce:data || pm2 start --name sconce:data service.coffee"
+  },
+  "dependencies": {
+    "async": "^2.1.4",
+    "somata": "^0.2.5"
+  }
+}

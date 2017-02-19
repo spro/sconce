@@ -1,0 +1,212 @@
+$colors
+    blue: #2f6a9e
+    green: #1ebd57
+    yellow: #f1bc32
+    red: #b11c11
+
+$padding
+    tiny: 5px
+    small: 10px
+    default: 15px
+    medium: 30px
+    large: 60px
+    huge: 120px
+
+$fonts
+    small: 12px
+    default: 15px
+    medium: 18px
+    large: 30px
+    huge: 60px
+
+*
+    margin: 0
+    padding: 0
+    box-sizing: border-box
+
+body
+    font: $fonts.default/1.5em Roboto, Arial, sans-serif
+    -webkit-font-smoothing: antialiased
+
+html, body, #app
+    height: 100%
+
+.spinner
+    display: flex
+    align-items: center
+    justify-content: center
+    padding: 100px
+
+    i.fa
+        font-size: 20px
+        margin-right: 20px
+
+a, button
+    font-weight: 500
+    line-height: 1em
+    cursor: pointer
+    font: inherit
+    color: inherit
+    -webkit-transition: color 500ms, background 200ms, opacity 200ms
+
+button
+    -webkit-appearance: none
+    font: inherit
+    font-size: $fonts.default
+    font-weight: bold
+    border: none
+    outline: none
+    color: #fff
+    display: block
+    padding: 6px $padding.medium
+    border-radius: 3px
+    background-color: $colors.blue
+    text-align: center
+    text-decoration: none
+
+    &:hover
+        background-color: color($colors.blue shade(10%))
+
+    i.fa
+        margin-right: 5px
+
+.button
+    inherit: button
+
+.mini-button
+    inherit: button
+    font-size: $fonts.small
+    padding: 2px $padding.default 3px
+    border: none
+    border-radius: 2px
+    box-shadow: none
+    width: auto
+    display: inline-block
+
+h1
+    font-size: $fonts.large
+    display: none
+
+h2
+    font-size: $fonts.medium
+    margin-bottom: $padding.default
+
+h3
+    font-size: $fonts.medium
+
+pre
+    font-size: 0.9rem
+    line-height: 1.1em
+    word-break: break-word
+    white-space: pre-line
+
+.tabs
+    background: #eee
+
+    a
+        display: inline-block
+        padding: $padding.tiny $padding.small
+        font-size: $fonts.small
+        font-weight: 500
+        color: #999
+
+        &.active
+            color: #000
+
+.item
+    width: calc(400px + 2 * $padding.default)
+    background: #fff
+    display: inline-block
+    vertical-align: top
+    border: 1px solid #ddd
+    border-top: none
+    border-left: none
+    position: relative
+
+.machine-summary, .program-summary
+    padding: $padding.default
+
+.row
+    display: flex
+    align-items: center
+
+.job-summary
+
+    .header
+        padding: $padding.small $padding.default
+
+        h3, .status
+            flex-grow: 1
+
+        span
+            margin-right: $padding.small
+            &:last-child
+                margin-right: 0
+
+        .id
+            color: #999
+
+        .elapsed
+            color: #999
+
+        .assigned
+            font-weight: bold
+
+        .mini-button
+            padding: 5px 8px
+            background: $colors.red
+            line-height: 1
+
+        pre
+            margin-top: $padding.small
+
+.validated-form
+    display: flex
+    padding: $padding.default
+    align-items: center
+    border-bottom: 1px solid #ddd
+
+    > div
+        display: flex
+
+    label
+        font-size: $fonts.small
+        font-weight: 500
+        text-transform: uppercase
+
+    .form-group
+        padding-right: $padding.default
+
+        label
+            display: block
+
+.jobs-page
+    > .row
+        align-items: flex-start
+
+    .reloadable-list
+        width: 400px
+        overflow-y: scroll
+
+    .item
+        display: block
+        width: auto
+
+.logs
+    max-width: calc(400px + 2 * $padding.default)
+    font-size: $fonts.small
+    background: #f8f8f8
+
+    > div
+        padding: 0 $padding.default
+
+    span:first-child
+        font-family: monospace
+
+    .t
+        color: #999
+        text-align: right
+        margin-left: $padding.small
+
+@import './graphs.sass'
+@import './object-editor.sass'

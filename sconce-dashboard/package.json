@@ -2,7 +2,7 @@
   "name": "sconce-dashboard",
   "version": "0.0.1",
   "scripts": {
-    "server": "coffee server.coffee",
+    "start": "coffee server.coffee",
     "restart": "pm2 restart sconce-dashboard || pm2 start --name sconce-dashboard server.coffee",
     "bounce": "metaserve --bounce /js/app.js && metaserve --bounce /css/app.css",
     "watch": "find static -name '*.coffee' -o -name '*.sass' | entr coffee ../auto-reload/do-reload.coffee"

@@ -2,7 +2,7 @@
     "name": "sconce-api",
     "version": "0.0.1",
     "scripts": {
-        "server": "super-api .",
+        "start": "super-api .",
         "restart": "pm2 restart sconce:api || pm2 start --name sconce:api super-api -- ."
     },
     "dependencies": {}

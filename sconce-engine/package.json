@@ -1,1 +1,9 @@
-{"name":"sconce-engine"}
+{
+  "name": "sconce-engine",
+  "scripts": {
+    "start": "coffee service.coffee"
+  },
+  "dependencies": {
+    "somata": "^0.2.6"
+  }
+}

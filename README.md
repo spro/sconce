@@ -1,27 +1,10 @@
 # sconce
 
-PyTorch runner for experiments in the cloud. Make good use of expensive server time by using a job queue system.
+Job manager for running and recording the results of multiple experiments at once.
 
-## Requirements
+![](https://i.imgur.com/gAKE62u.png)
 
-* Create a AWS EC2 instance
-    * Install Anaconda 
-        ```
-        curl -LO https://repo.continuum.io/archive/Anaconda3-4.3.0-Linux-x86_64.sh
-        bash Anaconda3-4.3.0-Linux-x86_64.sh
-        ```
-    * Install PyTorch
-        ```
-        conda install pytorch torchvision -c soumith
-        ```
-    * Create config for
-        * Where to read jobs from (master panel?)
-    * Download **sconce helper script** which will
-        * Claim a job from a list when booted
-        * Send results to a certain place when finished
-        * Shut itself down
-    * Create an image from this instance
-    * Save the image ID with the master panel
+# Notes
 
 ## Master panel
 

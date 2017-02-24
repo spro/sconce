@@ -1,0 +1,504 @@
+
+
+
+
+
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font: 15px/1.5em Roboto, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px;
+}
+
+.spinner i.fa {
+  font-size: 20px;
+  margin-right: 20px;
+}
+
+a,
+button,
+.button,
+.mini-button {
+  font-weight: 500;
+  line-height: 1em;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  -webkit-transition: color 500ms, background 200ms, opacity 200ms;
+}
+
+button,
+.button,
+.mini-button {
+  -webkit-appearance: none;
+  font: inherit;
+  font-size: 15px;
+  font-weight: bold;
+  border: none;
+  outline: none;
+  color: #fff;
+  display: block;
+  padding: 6px 30px;
+  border-radius: 3px;
+  background-color: #2f6a9e;
+  text-align: center;
+  text-decoration: none;
+}
+
+button:hover,
+.button:hover,
+.mini-button:hover {
+  background-color: rgb(42, 95, 142);
+}
+
+button i.fa,
+.button i.fa,
+.mini-button i.fa {
+  margin-right: 5px;
+}
+
+.mini-button {
+  font-size: 12px;
+  padding: 2px 15px 3px;
+  border: none;
+  border-radius: 2px;
+  box-shadow: none;
+  width: auto;
+  display: inline-block;
+}
+
+h1 {
+  font-size: 30px;
+  display: none;
+}
+
+h2 {
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+pre {
+  font-size: 0.9rem;
+  line-height: 1.1em;
+  word-break: break-word;
+  white-space: pre-line;
+}
+
+.tabs {
+  background: #eee;
+}
+
+.tabs a.active {
+  color: #000;
+}
+
+.tabs a {
+  display: inline-block;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #999;
+}
+
+.item {
+  width: 430px;
+  background: #fff;
+  display: inline-block;
+  vertical-align: top;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-left: none;
+  position: relative;
+}
+
+.machine-summary,
+.program-summary {
+  padding: 15px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.job-summary .header h3,
+.job-summary .header .status {
+  flex-grow: 1;
+}
+
+.job-summary .header span:last-child {
+  margin-right: 0;
+}
+
+.job-summary .header span {
+  margin-right: 10px;
+}
+
+.job-summary .header .elapsed {
+  color: #999;
+}
+
+.job-summary .header .assigned {
+  font-weight: bold;
+}
+
+.job-summary .header .mini-button {
+  padding: 5px 8px;
+  background: #b11c11;
+  line-height: 1;
+}
+
+.job-summary .header pre {
+  margin-top: 10px;
+}
+
+.job-summary .header {
+  padding: 10px 15px;
+}
+
+.id {
+  font-size: 14px;
+  font-weight: 500;
+  color: #999;
+}
+
+.validated-form {
+  display: flex;
+  padding: 15px;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.validated-form > div {
+  display: flex;
+}
+
+.validated-form label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.validated-form .form-group label {
+  display: block;
+}
+
+.validated-form .form-group {
+  padding-right: 15px;
+}
+
+.jobs-page > .row {
+  align-items: flex-start;
+}
+
+.jobs-page .reloadable-list {
+  width: 400px;
+  overflow-y: scroll;
+}
+
+.jobs-page .item {
+  display: block;
+  width: auto;
+}
+
+.logs {
+  max-width: 430px;
+  font-size: 12px;
+  background: #f8f8f8;
+}
+
+.logs > div {
+  padding: 0 15px;
+}
+
+.logs span:first-child {
+  font-family: monospace;
+}
+
+.logs .t {
+  color: #999;
+  text-align: right;
+  margin-left: 10px;
+}
+
+.chart {
+  position: relative;
+}
+
+.chart .line-chart {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+svg {
+  background: transparent;
+}
+
+svg text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.follower-container {
+  top: 0;
+  left: 0;
+}
+
+.follower-dot {
+  border: 2px solid #fff;
+}
+
+.follower-label {
+  font-size: 10px;
+  line-height: 1em;
+  font-weight: 500;
+  background: #fff;
+  padding: 2px;
+  position: absolute;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
+.object-editor .edit-value,
+.object-editor.edit-value {
+  display: inline-block;
+}
+
+.object-editor button:hover,
+.object-editor .button:hover,
+.object-editor .mini-button:hover {
+  background: #ddd;
+}
+
+.object-editor button:active,
+.object-editor .button:active,
+.object-editor .mini-button:active {
+  background: #bbb;
+}
+
+.object-editor button,
+.object-editor .button,
+.object-editor .mini-button {
+  background: transparent;
+  border-radius: 0;
+  padding: 0 6px;
+}
+
+.object-editor .adder {
+  margin-left: -5px;
+}
+
+.object-editor .edit-object > .adder,
+.object-editor.edit-object > .adder {
+  color: #9013FE;
+}
+
+.object-editor .edit-object,
+.object-editor.edit-object {
+  padding-left: 10px;
+  border-left: 3px solid #9013FE;
+}
+
+.object-editor .key-extra-object {
+  color: #9013FE;
+}
+
+.object-editor .edit-array > .adder,
+.object-editor.edit-array > .adder {
+  color: #F5A623;
+}
+
+.object-editor .edit-array,
+.object-editor.edit-array {
+  padding-left: 10px;
+  border-left: 3px solid #F5A623;
+}
+
+.object-editor .key-extra-array {
+  color: #F5A623;
+}
+
+.object-editor .editable-field {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.object-editor .row {
+  position: relative;
+}
+
+.object-editor .actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.object-editor .editable-field.key {
+  font-weight: bold;
+  color: inherit !important;
+}
+
+.object-editor .delete {
+  color: red;
+  font-size: 12px;
+}
+
+.object-editor .edited [contenteditable] {
+  outline-color: #fff5dc;
+}
+
+.object-editor .new-row [contenteditable][disabled] {
+  background: transparent;
+}
+
+.object-editor .new-row [contenteditable] {
+  display: inline-block;
+  outline-color: #fff5dc;
+}
+
+.object-editor .invalid {
+  background: red;
+}
+
+.object-editor [contenteditable] {
+  display: inline-block;
+}
+
+.object-editor .type-string {
+  color: #6492c0;
+}
+
+.object-editor .value.type-string:before {
+  content: '"';
+}
+
+.object-editor .value.type-string:after {
+  content: '"';
+}
+
+.object-editor .type-number {
+  color: #66c184;
+}
+
+.object-editor .type-boolean {
+  color: #ff6699;
+}
+
+.object-editor.value-cats {
+  background: url(http://www.publicdomainpictures.net/pictures/50000/velka/tabby-cat-dark-background.jpg);
+  background-size: 100% 100%;
+  border: 3px dashed yellow;
+  border-radius: 10px;
+  width: 300px;
+}
+
+.object-editor.value-cats [contenteditable] {
+  background: rgba(0, 0, 0, 0.9);
+  border-radius: 10px;
+  padding: 2px 5px;
+}
+
+.object-editor.value-cats .type-string {
+  color: yellow;
+}
+
+.object-editor.value-cats .value-name {
+  font-size: 25px;
+  line-height: 25px;
+}
+
+.object-editor.value-tickets > .row > .key {
+  display: none;
+}
+
+.object-editor.value-tickets > .row > .object-editor .row {
+  position: static;
+}
+
+.object-editor.value-tickets > .row > .object-editor .key,
+.object-editor.value-tickets > .row > .object-editor .adder {
+  display: none;
+}
+
+.object-editor.value-tickets > .row > .object-editor [contenteditable] {
+  line-height: 1em;
+}
+
+.object-editor.value-tickets > .row > .object-editor .row .actions {
+  display: none;
+}
+
+.object-editor.value-tickets > .row > .object-editor .value:before,
+.object-editor.value-tickets > .row > .object-editor .value:after {
+  display: none;
+}
+
+.object-editor.value-tickets > .row > .object-editor .value {
+  color: #000;
+}
+
+.object-editor.value-tickets > .row > .object-editor .value-price .value:before {
+  content: "$";
+  display: inline;
+  font-size: 20px;
+  position: relative;
+  left: -1px;
+  bottom: 5px;
+}
+
+.object-editor.value-tickets > .row > .object-editor .value-price .value {
+  font-size: 30px;
+  font-family: Georgia, Times, serif;
+  font-style: italic;
+  position: absolute;
+  right: 30px;
+  top: 30px;
+}
+
+.object-editor.value-tickets > .row > .object-editor .value-event .value {
+  font-weight: bold;
+  font-family: Georgia, Times, serif;
+  font-size: 20px;
+}
+
+.object-editor.value-tickets > .row > .object-editor .value-time .value {
+  font-family: Georgia, Times, serif;
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+.object-editor.value-tickets > .row > .object-editor {
+  width: 500px;
+  padding: 30px;
+  background: #fff;
+  font-family: "Helvetica Neue", Helvetica, sans-serif;
+  position: relative;
+  margin-top: 10px;
+}

@@ -53960,7 +53960,7 @@ JobsCharts = React.createClass({
           var key, subscription;
           key = "jobs:" + job._id + ":points";
           subscription = _this.subscriptions[key] = {
-            sub: somata.subscribe$('sconce:engine', subscription),
+            sub: somata.subscribe$('sconce:engine', key),
             fn: _this.addPoint(job._id)
           };
           return subscription.sub.onValue(subscription.fn);
@@ -54007,7 +54007,7 @@ JobsCharts = React.createClass({
       data = job.points.filter(function(point) {
         return point.y < 7;
       });
-      data._id = job._id;
+      data.id = job._id;
       return data;
     });
     return React.createElement(Chart, {

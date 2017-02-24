@@ -111,7 +111,7 @@ JobsCharts = React.createClass
             jobs.map (job) =>
                 key = "jobs:#{job._id}:points"
                 subscription = @subscriptions[key] =
-                    sub: somata.subscribe$('sconce:engine', subscription)
+                    sub: somata.subscribe$('sconce:engine', key)
                     fn: @addPoint job._id
                 subscription.sub.onValue subscription.fn
 
@@ -141,7 +141,7 @@ JobsCharts = React.createClass
             .map (job) ->
                 data = job.points.filter (point) ->
                     point.y < 7
-                data._id = job._id
+                data.id = job._id
                 data
 
         <Chart datas=datas width=width height=height color=color>

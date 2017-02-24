@@ -6,6 +6,9 @@
   },
   "dependencies": {
     "async": "^2.1.4",
+    "graphql": "^0.9.1",
+    "graphql-type-json": "^0.1.4",
+    "mongodb": "^2.2.24",
     "somata": "^0.2.5"
   }
 }

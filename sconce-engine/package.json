@@ -1,7 +1,8 @@
 {
   "name": "sconce-engine",
   "scripts": {
-    "start": "coffee service.coffee"
+    "start": "coffee service.coffee",
+    "restart": "pm2 restart sconce:engine || pm2 start --name sconce:engine service.coffee"
   },
   "dependencies": {
     "somata": "^0.2.6"

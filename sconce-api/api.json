@@ -6,6 +6,25 @@
         {
             "request": {
                 "method": "get",
+                "path": "/jobs.json"
+            },
+            "steps": [
+                {
+                    "type": "remote",
+                    "service": "sconce:data",
+                    "method": "query",
+                    "args": [
+                        "{jobs{_id, machine{_id, name, host}, program{_id, name}, logs{_id, body}, points{x, y}}}"
+                    ]
+                }
+            ],
+            "response": {
+                "content_type": "application/json"
+            }
+        },
+        {
+            "request": {
+                "method": "get",
                 "path": "/:type.json"
             },
             "steps": [

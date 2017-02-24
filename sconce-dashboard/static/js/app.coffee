@@ -32,24 +32,6 @@ NewProgram = React.createClass
             onSubmit=@createProgram
         />
 
-NewJob = React.createClass
-    createJob: (job) ->
-        @refs.form.setState {loading: true}
-        Dispatcher.create 'jobs', job
-            .onValue =>
-                @refs.form.setState @refs.form.getInitialState()
-
-    render: ->
-        <ValidatedForm
-            ref='form'
-            fields={
-                program_id: {type: 'number'}
-                machine_id: {type: 'number', optional: true}
-                params: {type: 'object', optional: true}
-            }
-            onSubmit=@createJob
-        />
-
 NewMachine = React.createClass
     createMachine: (machine) ->
         @refs.form.setState {loading: true}
@@ -70,6 +52,7 @@ NewMachine = React.createClass
 ProgramSummary = ({item}) ->
     <div className='item program-summary'>
         <h3 className='name'>{item.name}</h3>
+        <h4 className='id'>{item._id}</h4>
         <pre className='params'>{JSON.stringify item.params, null, 4}</pre>
     </div>
 
@@ -79,10 +62,13 @@ JobLogs = React.createClass
         logs: @props.job.logs or []
 
     componentDidMount: ->
-        somata.subscribe$('sconce:engine', "jobs:#{@props.job.id}:logs")
+        somata.subscribe$('sconce:engine', "jobs:#{@props.job._id}:logs")
             .onValue @addLog
         @fixScroll()
-        setInterval @updateState, 5000
+        @update_interval = setInterval @updateState, 5000
+
+    componentWillUnmount: ->
+        clearInterval @update_interval
 
     updateState: -> @setState @state
 
@@ -102,13 +88,13 @@ JobLogs = React.createClass
         <div className=class_name ref='logs' onClick=@toggleOpen>
             {if @state.open
                 @state.logs.map (log) ->
-                    <div key=log.id>
-                        <span>{log.log}</span>
+                    <div key=log._id>
+                        <span>{log.body}</span>
                         <span className='t'>{moment(log.t).fromNow(true)}</span>
                     </div>
             else if log = @state.logs.slice(-1)[0]
                 <div>
-                    <span>{log.log}</span>
+                    <span>{log.body}</span>
                     <span className='t'>{moment(log.t).fromNow(true)}</span>
                 </div>
             }
@@ -119,15 +105,26 @@ JobsCharts = React.createClass
         jobs: []
 
     componentDidMount: ->
+        @subscriptions = {}
         jobs$.onValue (jobs) =>
-            jobs = jobs.filter (j) -> j.points?.length
             @setState {jobs}
             jobs.map (job) =>
-                somata.subscribe$('sconce:engine', "jobs:#{job.id}:points")
-                    .onValue @addPoint job.id
+                key = "jobs:#{job._id}:points"
+                subscription = @subscriptions[key] =
+                    sub: somata.subscribe$('sconce:engine', subscription)
+                    fn: @addPoint job._id
+                subscription.sub.onValue subscription.fn
+
+    componentWillUnmount: ->
+        {jobs} = @state
+        jobs.map (job) =>
+            key = "jobs:#{job._id}:points"
+            subscription = @subscriptions[key]
+            subscription.sub.offValue subscription.fn
 
     addPoint: (job_id) -> (point) =>
-        job = @state.jobs.filter((j) -> j.id == job_id)[0]
+        job = @state.jobs.filter((j) -> j._id == job_id)[0]
+        job.points ||= []
         job.points.push point
         @setState {}
 
@@ -136,25 +133,29 @@ JobsCharts = React.createClass
             return <div />
 
         width = window.innerWidth - 400
-        height = window.innerHeight - 32 - 75
+        height = window.innerHeight - 32
 
-        datas = @state.jobs.map (job) ->
-            data = job.points.filter (p) -> p.y < 5
-            data.id = job.id
-            data
+        datas = @state.jobs
+            .filter (job) ->
+                job.points?
+            .map (job) ->
+                data = job.points.filter (point) ->
+                    point.y < 7
+                data._id = job._id
+                data
 
         <Chart datas=datas width=width height=height color=color>
             <LineChart fill=false />
         </Chart>
 
 JobSummary = ({item}) ->
-    removeJob = -> Dispatcher.remove 'jobs', item.id
-    claimJob = -> Dispatcher.claimJob item.id, 0
+    removeJob = -> Dispatcher.remove 'jobs', item._id
+    claimJob = -> Dispatcher.claimJob item._id, 0
     <div className='item job-summary'>
         <div className='header'>
             <div className='row'>
-                <span className='id'>{item.id}</span>
-                <h3 className='name' style={{color: color(item.id)}}>{item.program.name}</h3>
+                <h3 className='name' style={{color: color(item._id)}}>{item.program.name}</h3>
+                <h4 className='id'>{item._id}</h4>
                 <a className='mini-button' onClick=removeJob>&times;</a>
             </div>
             <div className='row'>
@@ -174,10 +175,13 @@ JobSummary = ({item}) ->
 MachineSummary = ({item}) ->
     <div className='item machine-summary'>
         <h3 className='name'>{item.name}</h3>
+        <h4 className='id'>{item._id}</h4>
         <code className='host'>{item.host}</code>
     </div>
 
-jobs$ = Dispatcher.find 'jobs', {}
+jobs$ = Dispatcher.find('jobs', {})
+somata.subscribe$('sconce:engine', "jobs")
+    .onValue (job) -> jobs$.createItem job
 
 App = React.createClass
     getInitialState: ->
@@ -206,9 +210,8 @@ App = React.createClass
                     </section>
                 when '/jobs'
                     <section className='jobs-page' key='jobs'>
-                        <NewJob />
                         <div className='row'>
-                            <ReloadableList loadItems={-> jobs$} style={{height: window.innerHeight - 32 - 75}}>
+                            <ReloadableList loadItems={-> jobs$} style={{height: window.innerHeight - 32}}>
                                 <JobSummary />
                             </ReloadableList>
                             <JobsCharts />

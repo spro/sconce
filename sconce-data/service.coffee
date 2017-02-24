@@ -1,30 +1,26 @@
 somata = require 'somata'
 schema = require './schema'
+graphql = require './graphql'
 
-if process.argv[2] == 'pg'
-    PostgresDb = require './postgres-db'
-    db = new PostgresDb schema
+if db_type = process.argv[2]
+    if db_type == 'pg'
+        PostgresDb = require './postgres-db'
+        db = new PostgresDb schema
 
-else if process.argv[2] == 'mongo'
-    MongnDb = require './mongo-db'
-    db = new MongnDb schema
+    if db_type == 'mongo'
+        MongoDb = require './mongo-db'
+        db = new MongoDb schema,
+            db: 'sconce'
+
+    else
+        console.error "Unknown database type #{db_type}"
+        process.exit()
 
 else
     LocalDb = require './local-db'
     db = new LocalDb schema
 
-claimJob = (job_id, {machine_id}, cb) ->
-    db.get 'jobs', job_id, (err, job) ->
-        if job.machine_id?
-            cb "Already assigned to machine #{machine_id}"
-        else
-            db.update 'jobs', job_id, {machine_id, start_time: new Date().getTime(), status: 'in progress'}, cb
+db = db.bindAll()
+db.query = graphql.query.bind null, db
 
-service = new somata.Service 'sconce:data', {
-    get: db.get.bind db
-    find: db.find.bind db
-    create: db.create.bind db
-    update: db.update.bind db
-    remove: db.remove.bind db
-    claimJob
-}
+service = new somata.Service 'sconce:data', db

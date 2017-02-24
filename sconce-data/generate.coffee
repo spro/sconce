@@ -15,17 +15,21 @@ emails = [
 randomChoice = (l) ->
     l[Math.floor Math.random() * l.length]
 
-generateObject = (collection, id) ->
+generateObject = (id_key, collection, id) ->
     if collection == 'users'
         name = randomChoice(names)
         email = randomChoice(emails)
-        return {name, email, id}
+        item = {name, email}
+        item[id_key] = id
+        return item
     else
         random_number = Math.random()
-        return {random_number, id}
+        item = {random_number}
+        item[id_key] = id
+        return item
 
-generateCollection = (collection) ->
-    [0..10].map generateObject.bind(null, collection)
+generateCollection = (id_key, collection) ->
+    [0..10].map generateObject.bind(null, id_key, collection)
 
 module.exports = {
     generateObject

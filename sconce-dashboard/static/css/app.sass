@@ -3,6 +3,11 @@ $colors
     green: #1ebd57
     yellow: #f1bc32
     red: #b11c11
+    dark_gray: #111
+    medium_gray: #777
+    light_border: #ddd
+    lighter_gray: #eee
+    lightest_gray: #f8f8f8
 
 $padding
     tiny: 5px
@@ -14,10 +19,13 @@ $padding
 
 $fonts
     small: 12px
-    default: 15px
-    medium: 18px
+    default: 14px
+    medium: 16px
     large: 30px
     huge: 60px
+
+$sizes
+    sidebar: 300px
 
 *
     margin: 0
@@ -25,6 +33,8 @@ $fonts
     box-sizing: border-box
 
 body
+    background: $colors.dark_gray
+    color: #fff
     font: $fonts.default/1.5em Roboto, Arial, sans-serif
     -webkit-font-smoothing: antialiased
 
@@ -92,7 +102,7 @@ h2
     margin-bottom: $padding.default
 
 h3
-    font-size: $fonts.medium
+    font-size: 1rem
 
 pre
     font-size: 0.9rem
@@ -101,7 +111,12 @@ pre
     white-space: pre-line
 
 .tabs
-    background: #eee
+    padding-bottom: $padding.small
+    display: flex
+    align-items: center
+
+    .brand
+        flex-grow: 1
 
     a
         display: inline-block
@@ -111,32 +126,85 @@ pre
         color: #999
 
         &.active
-            color: #000
+            color: #fff
 
-.item
-    width: calc(400px + 2 * $padding.default)
-    background: #fff
-    display: inline-block
-    vertical-align: top
-    border: 1px solid #ddd
-    border-top: none
-    border-left: none
-    position: relative
+    span
+        color: #999
 
-.machine-summary, .program-summary
-    padding: $padding.default
+        strong
+            color: #fff
 
 .row
     display: flex
     align-items: center
 
-.job-summary
+.item
+    display: block
+    vertical-align: top
+    position: relative
 
-    .header
-        padding: $padding.small $padding.default
+#sidebar
+    position: fixed
+    top: 10px
+    right: 10px
+    bottom: 0
+    width: $sizes.sidebar
+    overflow-y: scroll
 
-        h3, .status
+.dropdown
+    margin-bottom: $padding.small
+
+    .option
+        display: flex
+        align-items: center
+
+        .name
+            font-weight: bold
             flex-grow: 1
+
+        .count
+            color: $colors.medium_gray
+            margin-left: $padding.default
+
+        .count + i.fa
+            margin-left: $padding.small
+            color: $colors.medium_gray
+
+.dropdown-toggle
+    display: block
+    border-radius: 3px
+    padding: $padding.tiny 0
+
+.dropdown-options
+    position: absolute
+    z-index: 9999
+
+.dropdown-option
+    display: block
+    padding: $padding.tiny $padding.small
+    background: color($colors.dark_gray tint(10%))
+    border-top: 1px solid $colors.dark_gray
+    cursor: pointer
+
+    &:hover
+        background: color($colors.dark_gray tint(20%))
+
+    .option i.fa
+        display: none
+
+.job-summary
+    margin-bottom: $padding.small
+    pointer-events: auto
+
+    .summary
+        background: color($colors.dark_gray tint(10%))
+        padding: $padding.tiny $padding.small
+
+        .hostname, .status
+            flex-grow: 1
+
+        .hostname
+            font-weight: bold
 
         span
             margin-right: $padding.small
@@ -150,57 +218,60 @@ pre
             font-weight: bold
 
         .mini-button
-            padding: 5px 8px
-            background: $colors.red
+            padding: 0
+            width: 20px
+            height: 20px
+            font-size: 18px
+            color: $colors.medium_gray
+            background: transparent
             line-height: 1
+            margin-left: 10px
+            display: flex
+            align-items: center
+            justify-content: center
 
-        pre
-            margin-top: $padding.small
+            i.fa
+                font-size: 14px
+                margin: 0
 
-.id
-    font-size: 14px
-    font-weight: 500
-    color: #999
+            &:hover
+                background: color($colors.dark_gray shade(10%))
 
-.validated-form
-    display: flex
-    padding: $padding.default
-    align-items: center
-    border-bottom: 1px solid #ddd
+        .param
+            &:first-child
+                margin-top: $padding.tiny
 
-    > div
-        display: flex
+            .key
+                font-weight: bold
+                font-size: 0.8rem
 
-    label
-        font-size: $fonts.small
-        font-weight: 500
-        text-transform: uppercase
+            .value
+                font-family: monospace
 
-    .form-group
-        padding-right: $padding.default
+    &.hidden
+        opacity: 0.3
 
-        label
-            display: block
+        .params
+            display: none
 
-.jobs-page
-    > .row
-        align-items: flex-start
+        .logs
+            display: none
 
-    .reloadable-list
-        width: 400px
-        overflow-y: scroll
+    &.collapsed
+        border-bottom: 2px solid color($colors.dark_gray tint(20%))
 
-    .item
-        display: block
-        width: auto
+        .params
+            display: none
+
+        .logs
+            display: none
 
 .logs
-    max-width: calc(400px + 2 * $padding.default)
     font-size: $fonts.small
-    background: #f8f8f8
+    background: rgba(#000, 0.8)
 
     > div
-        padding: 0 $padding.default
+        padding: 0 $padding.small
 
     span:first-child
         font-family: monospace

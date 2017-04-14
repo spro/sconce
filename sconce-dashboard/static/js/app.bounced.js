@@ -55054,7 +55054,7 @@ JobLogs = React.createClass({
     };
   },
   componentDidMount: function() {
-    somata.subscribe$('sconce:engine', "jobs:" + this.props.job._id + ":logs").onValue(this.addLog);
+    somata.subscribe$('sconce:engine', "jobs:" + this.props.job.id + ":logs").onValue(this.addLog);
     this.fixScroll();
     return this.update_interval = setInterval(this.updateState, 5000);
   },
@@ -55087,9 +55087,9 @@ JobLogs = React.createClass({
       "ref": 'logs',
       "onClick": this.toggleOpen
     }, (this.state.open ? this.state.logs.map(function(log) {
-      log.t || (log.t = dateFromObjectId(log._id));
+      log.t || (log.t = dateFromObjectId(log.id));
       return React.createElement("div", {
-        "key": log._id
+        "key": log.id
       }, React.createElement("span", null, log.body), React.createElement("span", {
         "className": 't'
       }, moment(log.t).fromNow(true)));
@@ -55115,10 +55115,10 @@ JobsCharts = React.createClass({
         });
         return jobs.map(function(job) {
           var key, subscription;
-          key = "jobs:" + job._id + ":points";
+          key = "jobs:" + job.id + ":points";
           subscription = _this.subscriptions[key] = {
             sub: somata.subscribe$('sconce:engine', key),
-            fn: _this.addPoint(job._id)
+            fn: _this.addPoint(job.id)
           };
           return subscription.sub.onValue(subscription.fn);
         });
@@ -55136,7 +55136,7 @@ JobsCharts = React.createClass({
     return jobs.map((function(_this) {
       return function(job) {
         var key, subscription;
-        key = "jobs:" + job._id + ":points";
+        key = "jobs:" + job.id + ":points";
         subscription = _this.subscriptions[key];
         return subscription.sub.offValue(subscription.fn);
       };
@@ -55147,7 +55147,7 @@ JobsCharts = React.createClass({
       return function(point) {
         var job;
         job = _this.state.jobs.filter(function(j) {
-          return j._id === job_id;
+          return j.id === job_id;
         })[0];
         job.points || (job.points = []);
         job.points.push(point);
@@ -55167,7 +55167,7 @@ JobsCharts = React.createClass({
       data = job.points.filter(function(point) {
         return point.y < 7;
       });
-      data.id = job._id;
+      data.id = job.id;
       return data;
     });
     return React.createElement(MultiLineChart, {
@@ -55198,19 +55198,19 @@ JobSummary = function(_arg) {
   var class_name, item, item_color, removeJob, toggleCollapsed, toggleHidden;
   item = _arg.item;
   removeJob = function() {
-    return Dispatcher.remove('jobs', item._id);
+    return Dispatcher.remove('jobs', item.id);
   };
   toggleHidden = function() {
-    return jobs$.updateItem(item._id, {
+    return jobs$.updateItem(item.id, {
       hidden: !item.hidden
     });
   };
   toggleCollapsed = function() {
-    return jobs$.updateItem(item._id, {
+    return jobs$.updateItem(item.id, {
       collapsed: !item.collapsed
     });
   };
-  item_color = color(item._id);
+  item_color = color(item.id);
   class_name = 'item job-summary';
   if (item.hidden) {
     class_name += ' hidden';
@@ -55416,13 +55416,14 @@ Store = {};
 module.exports = Dispatcher = {
   find: function(type, query) {
     Store[type] = KefirCollection([], {
-      id_key: '_id'
+      id_key: 'id'
     });
     fetch$('get', "/" + type + ".json", {
       query: query
     }).onValue(function(response) {
       var items;
       items = response[type] || response;
+      items = items.items;
       return Store[type].setItems(items);
     });
     return Store[type];

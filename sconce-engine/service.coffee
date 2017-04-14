@@ -7,9 +7,7 @@ createJob = (new_job, cb) ->
     create_job_query = '''
     mutation($create: JobInput!){
         create_job(create: $create){
-            _id,
-            machine{_id, name},
-            program{_id, name}
+            _id, name, params, hostname
         }
     }
     '''

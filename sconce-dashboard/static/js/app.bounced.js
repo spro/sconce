@@ -50333,6 +50333,10 @@ module.exports = Chart = {
     return this.createAxes(next_props);
   },
   shouldComponentUpdate: function(next_props, next_state) {
+    var _ref1;
+    if (Array.isArray((_ref1 = next_props.data) != null ? _ref1[0] : void 0)) {
+      return true;
+    }
     if (next_props.data.length !== this.props.data.length) {
       return true;
     } else if ((next_props.width !== this.props.width) || (next_props.height !== this.props.height)) {

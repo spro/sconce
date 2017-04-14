@@ -34,7 +34,7 @@ JobLogs = React.createClass
         logs: @props.job.logs or []
 
     componentDidMount: ->
-        somata.subscribe$('sconce:engine', "jobs:#{@props.job._id}:logs")
+        somata.subscribe$('sconce:engine', "jobs:#{@props.job.id}:logs")
             .onValue @addLog
         @fixScroll()
         @update_interval = setInterval @updateState, 5000
@@ -60,8 +60,8 @@ JobLogs = React.createClass
         <div className=class_name ref='logs' onClick=@toggleOpen>
             {if @state.open
                 @state.logs.map (log) ->
-                    log.t ||= dateFromObjectId log._id
-                    <div key=log._id>
+                    log.t ||= dateFromObjectId log.id
+                    <div key=log.id>
                         <span>{log.body}</span>
                         <span className='t'>{moment(log.t).fromNow(true)}</span>
                     </div>
@@ -83,10 +83,10 @@ JobsCharts = React.createClass
             console.log 'jobs.onvalue'
             @setState {jobs}
             jobs.map (job) =>
-                key = "jobs:#{job._id}:points"
+                key = "jobs:#{job.id}:points"
                 subscription = @subscriptions[key] =
                     sub: somata.subscribe$('sconce:engine', key)
-                    fn: @addPoint job._id
+                    fn: @addPoint job.id
                 subscription.sub.onValue subscription.fn
 
         window.addEventListener 'resize', @resize
@@ -98,12 +98,12 @@ JobsCharts = React.createClass
     componentWillUnmount: ->
         {jobs} = @state
         jobs.map (job) =>
-            key = "jobs:#{job._id}:points"
+            key = "jobs:#{job.id}:points"
             subscription = @subscriptions[key]
             subscription.sub.offValue subscription.fn
 
     addPoint: (job_id) -> (point) =>
-        job = @state.jobs.filter((j) -> j._id == job_id)[0]
+        job = @state.jobs.filter((j) -> j.id == job_id)[0]
         job.points ||= []
         job.points.push point
         @setState {}
@@ -118,7 +118,7 @@ JobsCharts = React.createClass
             .map (job) ->
                 data = job.points.filter (point) ->
                     point.y < 7
-                data.id = job._id
+                data.id = job.id
                 data
 
         <MultiLineChart
@@ -134,11 +134,11 @@ JobsCharts = React.createClass
         />
 
 JobSummary = ({item}) ->
-    removeJob = -> Dispatcher.remove 'jobs', item._id
-    toggleHidden = -> jobs$.updateItem item._id, hidden: !item.hidden
-    toggleCollapsed = -> jobs$.updateItem item._id, collapsed: !item.collapsed
+    removeJob = -> Dispatcher.remove 'jobs', item.id
+    toggleHidden = -> jobs$.updateItem item.id, hidden: !item.hidden
+    toggleCollapsed = -> jobs$.updateItem item.id, collapsed: !item.collapsed
 
-    item_color =  color(item._id)
+    item_color =  color(item.id)
 
     class_name = 'item job-summary'
     if item.hidden

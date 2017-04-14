@@ -8,10 +8,11 @@ Store = {}
 
 module.exports = Dispatcher =
     find: (type, query) ->
-        Store[type] = KefirCollection([], id_key: '_id')
+        Store[type] = KefirCollection([], id_key: 'id')
         fetch$ 'get', "/#{type}.json", {query}
             .onValue (response) ->
                 items = response[type] or response
+                items = items.items
                 Store[type].setItems items
         Store[type]
 

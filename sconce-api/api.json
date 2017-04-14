@@ -14,7 +14,7 @@
                     "service": "sconce:data",
                     "method": "query",
                     "args": [
-                        "{jobs{_id, name, params, hostname, logs{_id, body}, points{x, y}}}"
+                        "{jobs{items{id, name, params, hostname, logs{id, body}, points{x, y}}}}"
                     ]
                 }
             ],
@@ -73,7 +73,7 @@
                     "method": "get",
                     "args": [
                         "$req.params.type",
-                        "$req.params.id"
+                        {"id": "$req.params.id"}
                     ]
                 }
             ],

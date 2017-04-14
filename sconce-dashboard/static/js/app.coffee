@@ -2,59 +2,31 @@ React = require 'react'
 ReactDOM = require 'react-dom'
 moment = require 'moment'
 {Router, Link} = require 'zamba-router'
-{ReloadableList} = require 'common-components'
-{ValidatedForm} = require 'validated-form'
+{ReloadableList, Spinner, Dropdown} = require 'common-components'
+KefirBus = require 'kefir-bus'
 Dispatcher = require './dispatcher'
-{Chart, LineChart} = require 'zamba-charts'
+{MultiLineChart} = require 'zamba-charts'
 somata = require 'somata-socketio-client'
 d3 = require 'd3'
+tinycolor = require 'tinycolor2'
 
-color = d3.scaleOrdinal d3.schemeCategory10
+Store =
+    job_name: 'test'
+
+d3_color = d3.scaleOrdinal(d3.schemeCategory10)
+
+color = (d) ->
+    c = d3_color d
+    tinycolor(c).lighten(20).toHexString()
+
+dateFromObjectId = (objectId) ->
+    new Date(parseInt(objectId.substring(0, 8), 16) * 1000)
+
+inv = (key) -> (state) ->
+    state[key] = !state[key]
 
 if config.debug
     require './reload'
-
-NewProgram = React.createClass
-    createProgram: (program) ->
-        @refs.form.setState {loading: true}
-        Dispatcher.create 'programs', program
-            .onValue =>
-                @refs.form.setState @refs.form.getInitialState()
-
-    render: ->
-        <ValidatedForm
-            ref='form'
-            fields={
-                name: {}
-                description: {type: 'textarea', optional: true}
-                params: {type: 'object', optional: true}
-            }
-            onSubmit=@createProgram
-        />
-
-NewMachine = React.createClass
-    createMachine: (machine) ->
-        @refs.form.setState {loading: true}
-        Dispatcher.create 'machines', machine
-            .onValue =>
-                @refs.form.setState @refs.form.getInitialState()
-
-    render: ->
-        <ValidatedForm
-            ref='form'
-            fields={
-                name: {}
-                host: {}
-            }
-            onSubmit=@createMachine
-        />
-
-ProgramSummary = ({item}) ->
-    <div className='item program-summary'>
-        <h3 className='name'>{item.name}</h3>
-        <h4 className='id'>{item._id}</h4>
-        <pre className='params'>{JSON.stringify item.params, null, 4}</pre>
-    </div>
 
 JobLogs = React.createClass
     getInitialState: ->
@@ -88,6 +60,7 @@ JobLogs = React.createClass
         <div className=class_name ref='logs' onClick=@toggleOpen>
             {if @state.open
                 @state.logs.map (log) ->
+                    log.t ||= dateFromObjectId log._id
                     <div key=log._id>
                         <span>{log.body}</span>
                         <span className='t'>{moment(log.t).fromNow(true)}</span>
@@ -107,6 +80,7 @@ JobsCharts = React.createClass
     componentDidMount: ->
         @subscriptions = {}
         jobs$.onValue (jobs) =>
+            console.log 'jobs.onvalue'
             @setState {jobs}
             jobs.map (job) =>
                 key = "jobs:#{job._id}:points"
@@ -114,6 +88,12 @@ JobsCharts = React.createClass
                     sub: somata.subscribe$('sconce:engine', key)
                     fn: @addPoint job._id
                 subscription.sub.onValue subscription.fn
+
+        window.addEventListener 'resize', @resize
+
+    resize: ->
+        console.log 'resize'
+        @setState {}
 
     componentWillUnmount: ->
         {jobs} = @state
@@ -129,54 +109,70 @@ JobsCharts = React.createClass
         @setState {}
 
     render: ->
-        if !@state.jobs[0]?.points?.length
-            return <div />
+        width = window.innerWidth
+        height = window.innerHeight
 
-        width = window.innerWidth - 400
-        height = window.innerHeight - 32
-
-        datas = @state.jobs
-            .filter (job) ->
-                job.points?
+        data = @state.jobs
+            .filter (job) =>
+                job.name == @props.job_name and job.points? and !job.hidden
             .map (job) ->
                 data = job.points.filter (point) ->
                     point.y < 7
                 data.id = job._id
                 data
 
-        <Chart datas=datas width=width height=height color=color>
-            <LineChart fill=false />
-        </Chart>
+        <MultiLineChart
+            data=data
+            width=width
+            height=height
+            color=color
+            padding={left: 40, bottom: 40}
+            axis_size=40
+            follower=true
+            y_axis={padding: 10, format: (y) -> y.toFixed(2)}
+            x_axis={padding: 10}
+        />
 
 JobSummary = ({item}) ->
     removeJob = -> Dispatcher.remove 'jobs', item._id
-    claimJob = -> Dispatcher.claimJob item._id, 0
-    <div className='item job-summary'>
-        <div className='header'>
+    toggleHidden = -> jobs$.updateItem item._id, hidden: !item.hidden
+    toggleCollapsed = -> jobs$.updateItem item._id, collapsed: !item.collapsed
+
+    item_color =  color(item._id)
+
+    class_name = 'item job-summary'
+    if item.hidden
+        class_name += ' hidden'
+    if item.collapsed
+        class_name += ' collapsed'
+
+    <div className=class_name>
+        <div className='summary' style={borderLeft: "3px solid #{item_color}"}>
             <div className='row'>
-                <h3 className='name' style={{color: color(item._id)}}>{item.program.name}</h3>
-                <h4 className='id'>{item._id}</h4>
+                <a className='hostname' onClick=toggleCollapsed>{item.hostname}</a>
+                <a className='mini-button' onClick=toggleHidden><i className='fa fa-eye' /></a>
                 <a className='mini-button' onClick=removeJob>&times;</a>
             </div>
             <div className='row'>
                 <span className='status'>{item.status}</span>
-                {if item.machine?
-                    <span className='assigned'>{item.machine.name}</span>
-                }
                 {if item.start_time?
                     <span className='elapsed'>{moment(item.start_time).fromNow(true)}</span>
                 }
             </div>
-            <pre className='params'>{JSON.stringify item.params}</pre>
+            <Params params=item.params />
         </div>
         <JobLogs job=item />
     </div>
 
-MachineSummary = ({item}) ->
-    <div className='item machine-summary'>
-        <h3 className='name'>{item.name}</h3>
-        <h4 className='id'>{item._id}</h4>
-        <code className='host'>{item.host}</code>
+Params = ({params}) ->
+    <div className='params' onClick=@toggleCollapsed>
+        {Object.keys(params).map (key) ->
+            value = params[key]
+            <div className='param' key=key>
+                <span className='key'>{key}</span>
+                <span className='value'>{value}</span>
+            </div>
+        }
     </div>
 
 jobs$ = Dispatcher.find('jobs', {})
@@ -193,40 +189,60 @@ App = React.createClass
 
     render: ->
         <div id='content'>
-            <h1>sconce-dashboard</h1>
+            <Router.render routes=routes route=@state.route />
+        </div>
+
+JobPage = ({job_name}) ->
+    Store.job_name = job_name
+
+    <section className='jobs-page' key='jobs'>
+        <JobsCharts job_name={job_name} />
+        <div id='sidebar'>
             <div className='tabs'>
-                <Link to='/jobs'>Jobs</Link>
-                <Link to='/programs'>Programs</Link>
-                <Link to='/machines'>Machines</Link>
+                <span className='brand'>🔥 sconce</span>
+                <span>Logged in as <strong>spro</strong></span>
             </div>
 
-            {switch @state.route.path
-                when '/programs'
-                    <section className='programs-page' key='programs'>
-                        <NewProgram />
-                        <ReloadableList loadItems={Dispatcher.find.bind(null, 'programs', {})}>
-                            <ProgramSummary />
-                        </ReloadableList>
-                    </section>
-                when '/jobs'
-                    <section className='jobs-page' key='jobs'>
-                        <div className='row'>
-                            <ReloadableList loadItems={-> jobs$} style={{height: window.innerHeight - 32}}>
-                                <JobSummary />
-                            </ReloadableList>
-                            <JobsCharts />
-                        </div>
-                    </section>
-                when '/machines'
-                    <section className='machines-page' key='machines'>
-                        <NewMachine />
-                        <ReloadableList loadItems={Dispatcher.find.bind(null, 'machines', {})}>
-                            <MachineSummary />
-                        </ReloadableList>
-                    </section>
-                else
-                    <h2>404</h2>
-            }
+            <JobsDropdown selected=job_name />
+
+            <ReloadableList loadItems={-> jobs$} filter={(j) -> j.name == job_name}>
+                <JobSummary />
+            </ReloadableList>
         </div>
+    </section>
+
+JobsDropdown = React.createClass
+    getInitialState: ->
+        options: []
+
+    componentDidMount: ->
+        jobs$.onValue (jobs) =>
+            options = []
+            counts = {}
+            for job in jobs
+                if job.name? and job.name not in options
+                    counts[job.name] ||= 0
+                    counts[job.name] += 1
+            for name, count of counts
+                options.push {name, count}
+            @setState {options}
+
+    render: ->
+        navigate = (option) ->
+            Router.navigate path: "/jobs/#{option.name}"
+
+        <Dropdown options={@state.options} selected=@props.selected id_key='name' onChoose=navigate>
+            <DropdownOption />
+        </Dropdown>
+
+DropdownOption = ({option}) ->
+    <span className='option'>
+        <span className='name'>{option.name}</span>
+        <span className='count'>{option.count} jobs</span>
+        <i className='fa fa-angle-down' />
+    </span>
+
+routes =
+    '/jobs/:job_name': <JobPage />
 
 ReactDOM.render <App />, document.getElementById('app')

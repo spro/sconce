@@ -4,6 +4,8 @@
 
 
 
+
+
 * {
   margin: 0;
   padding: 0;
@@ -11,7 +13,9 @@
 }
 
 body {
-  font: 15px/1.5em Roboto, Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  font: 14px/1.5em Roboto, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -50,7 +54,7 @@ button,
 .mini-button {
   -webkit-appearance: none;
   font: inherit;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   border: none;
   outline: none;
@@ -91,12 +95,12 @@ h1 {
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 15px;
 }
 
 h3 {
-  font-size: 18px;
+  font-size: 1rem;
 }
 
 pre {
@@ -107,11 +111,17 @@ pre {
 }
 
 .tabs {
-  background: #eee;
+  padding-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.tabs .brand {
+  flex-grow: 1;
 }
 
 .tabs a.active {
-  color: #000;
+  color: #fff;
 }
 
 .tabs a {
@@ -122,20 +132,12 @@ pre {
   color: #999;
 }
 
-.item {
-  width: 430px;
-  background: #fff;
-  display: inline-block;
-  vertical-align: top;
-  border: 1px solid #ddd;
-  border-top: none;
-  border-left: none;
-  position: relative;
+.tabs span strong {
+  color: #fff;
 }
 
-.machine-summary,
-.program-summary {
-  padding: 15px;
+.tabs span {
+  color: #999;
 }
 
 .row {
@@ -143,94 +145,174 @@ pre {
   align-items: center;
 }
 
-.job-summary .header h3,
-.job-summary .header .status {
-  flex-grow: 1;
-}
-
-.job-summary .header span:last-child {
-  margin-right: 0;
-}
-
-.job-summary .header span {
-  margin-right: 10px;
-}
-
-.job-summary .header .elapsed {
-  color: #999;
-}
-
-.job-summary .header .assigned {
-  font-weight: bold;
-}
-
-.job-summary .header .mini-button {
-  padding: 5px 8px;
-  background: #b11c11;
-  line-height: 1;
-}
-
-.job-summary .header pre {
-  margin-top: 10px;
-}
-
-.job-summary .header {
-  padding: 10px 15px;
-}
-
-.id {
-  font-size: 14px;
-  font-weight: 500;
-  color: #999;
-}
-
-.validated-form {
-  display: flex;
-  padding: 15px;
-  align-items: center;
-  border-bottom: 1px solid #ddd;
-}
-
-.validated-form > div {
-  display: flex;
-}
-
-.validated-form label {
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: uppercase;
-}
-
-.validated-form .form-group label {
+.item {
   display: block;
+  vertical-align: top;
+  position: relative;
 }
 
-.validated-form .form-group {
-  padding-right: 15px;
-}
-
-.jobs-page > .row {
-  align-items: flex-start;
-}
-
-.jobs-page .reloadable-list {
-  width: 400px;
+#sidebar {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  bottom: 0;
+  width: 300px;
   overflow-y: scroll;
 }
 
-.jobs-page .item {
+.dropdown {
+  margin-bottom: 10px;
+}
+
+.dropdown .option .name {
+  font-weight: bold;
+  flex-grow: 1;
+}
+
+.dropdown .option .count {
+  color: #777;
+  margin-left: 15px;
+}
+
+.dropdown .option .count + i.fa {
+  margin-left: 10px;
+  color: #777;
+}
+
+.dropdown .option {
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-toggle {
   display: block;
-  width: auto;
+  border-radius: 3px;
+  padding: 5px 0;
+}
+
+.dropdown-options {
+  position: absolute;
+  z-index: 9999;
+}
+
+.dropdown-option {
+  display: block;
+  padding: 5px 10px;
+  background: rgb(41, 41, 41);
+  border-top: 1px solid #111;
+  cursor: pointer;
+}
+
+.dropdown-option:hover {
+  background: rgb(65, 65, 65);
+}
+
+.dropdown-option .option i.fa {
+  display: none;
+}
+
+.job-summary {
+  margin-bottom: 10px;
+  pointer-events: auto;
+}
+
+.job-summary .summary .hostname,
+.job-summary .summary .status {
+  flex-grow: 1;
+}
+
+.job-summary .summary .hostname {
+  font-weight: bold;
+}
+
+.job-summary .summary span:last-child {
+  margin-right: 0;
+}
+
+.job-summary .summary span {
+  margin-right: 10px;
+}
+
+.job-summary .summary .elapsed {
+  color: #999;
+}
+
+.job-summary .summary .assigned {
+  font-weight: bold;
+}
+
+.job-summary .summary .mini-button i.fa {
+  font-size: 14px;
+  margin: 0;
+}
+
+.job-summary .summary .mini-button:hover {
+  background: rgb(15, 15, 15);
+}
+
+.job-summary .summary .mini-button {
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  font-size: 18px;
+  color: #777;
+  background: transparent;
+  line-height: 1;
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.job-summary .summary .param:first-child {
+  margin-top: 5px;
+}
+
+.job-summary .summary .param .key {
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.job-summary .summary .param .value {
+  font-family: monospace;
+}
+
+.job-summary .summary {
+  background: rgb(41, 41, 41);
+  padding: 5px 10px;
+}
+
+.job-summary.hidden .params {
+  display: none;
+}
+
+.job-summary.hidden .logs {
+  display: none;
+}
+
+.job-summary.hidden {
+  opacity: 0.3;
+}
+
+.job-summary.collapsed .params {
+  display: none;
+}
+
+.job-summary.collapsed .logs {
+  display: none;
+}
+
+.job-summary.collapsed {
+  border-bottom: 2px solid rgb(65, 65, 65);
 }
 
 .logs {
-  max-width: 430px;
   font-size: 12px;
-  background: #f8f8f8;
+  background: rgba(0, 0, 0, 0.8);
 }
 
 .logs > div {
-  padding: 0 15px;
+  padding: 0 10px;
 }
 
 .logs span:first-child {
@@ -248,6 +330,7 @@ pre {
 }
 
 .chart .line-chart {
+  background: #111;
   position: absolute;
   top: 0;
   left: 0;
@@ -255,6 +338,7 @@ pre {
 
 svg {
   background: transparent;
+  overflow: visible;
 }
 
 svg text {
@@ -262,9 +346,17 @@ svg text {
   font-weight: 500;
 }
 
+.axis text {
+  fill: #777;
+}
+
 .follower-container {
   top: 0;
   left: 0;
+}
+
+.follower-line {
+  fill: rgba(255, 255, 255, 0.2);
 }
 
 .follower-dot {
@@ -275,7 +367,7 @@ svg text {
   font-size: 10px;
   line-height: 1em;
   font-weight: 500;
-  background: #fff;
+  fill: #fff;
   padding: 2px;
   position: absolute;
   border-radius: 2px;

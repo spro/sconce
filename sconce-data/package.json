@@ -5,10 +5,7 @@
     "restart": "pm2 restart sconce:data || pm2 start --name sconce:data service.coffee"
   },
   "dependencies": {
-    "async": "^2.1.4",
-    "graphql": "^0.9.1",
-    "graphql-type-json": "^0.1.4",
-    "mongodb": "^2.2.24",
+    "data-service": "git+ssh://git@github.com/prontotype-us/data-service.git",
     "somata": "^0.2.5"
   }
 }

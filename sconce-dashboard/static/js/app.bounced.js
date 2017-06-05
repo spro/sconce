@@ -55160,8 +55160,9 @@ JobsCharts = React.createClass({
     })(this);
   },
   render: function() {
-    var data, height, width;
-    width = window.innerWidth;
+    var SIDEBAR_WIDTH, data, height, width;
+    SIDEBAR_WIDTH = 300;
+    width = window.innerWidth - SIDEBAR_WIDTH;
     height = window.innerHeight;
     data = this.state.jobs.filter((function(_this) {
       return function(job) {

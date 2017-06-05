@@ -54999,7 +54999,7 @@ arguments[4][18][0].apply(exports,arguments)
 }));
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],235:[function(require,module,exports){
-var App, Dispatcher, Dropdown, DropdownOption, JobLogs, JobPage, JobSummary, JobsCharts, JobsDropdown, KefirBus, Link, MultiLineChart, Params, React, ReactDOM, ReloadableList, Router, Spinner, Store, color, d3, d3_color, dateFromObjectId, inv, jobs$, moment, routes, somata, tinycolor, _ref, _ref1,
+var App, Dispatcher, Dropdown, DropdownOption, JobLogs, JobPage, JobSummary, JobsCharts, JobsDropdown, KefirBus, Link, MultiLineChart, Params, React, ReactDOM, ReloadableList, Router, Spinner, Store, color, d3, d3_color, inv, jobs$, moment, oid2t, routes, somata, tinycolor, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 React = require('react');
@@ -55036,8 +55036,8 @@ color = function(d) {
   return tinycolor(c).lighten(20).toHexString();
 };
 
-dateFromObjectId = function(objectId) {
-  return new Date(parseInt(objectId.substring(0, 8), 16) * 1000);
+oid2t = function(oid) {
+  return new Date(parseInt(oid.substring(0, 8), 16) * 1000);
 };
 
 inv = function(key) {
@@ -55091,15 +55091,14 @@ JobLogs = React.createClass({
       "ref": 'logs',
       "onClick": this.toggleOpen
     }, (this.state.open ? this.state.logs.map(function(log) {
-      log.t || (log.t = dateFromObjectId(log.id));
       return React.createElement("div", {
         "key": log.id
       }, React.createElement("span", null, log.body), React.createElement("span", {
         "className": 't'
-      }, moment(log.t).fromNow(true)));
+      }, moment(oid2t(log.id)).fromNow(true)));
     }) : (log = this.state.logs.slice(-1)[0]) ? React.createElement("div", null, React.createElement("span", null, log.body), React.createElement("span", {
       "className": 't'
-    }, moment(log.t).fromNow(true))) : void 0));
+    }, moment(oid2t(log.id)).fromNow(true))) : void 0));
   }
 });
 

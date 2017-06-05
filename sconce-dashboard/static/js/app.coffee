@@ -19,8 +19,8 @@ color = (d) ->
     c = d3_color d
     tinycolor(c).lighten(20).toHexString()
 
-dateFromObjectId = (objectId) ->
-    new Date(parseInt(objectId.substring(0, 8), 16) * 1000)
+oid2t = (oid) ->
+    new Date(parseInt(oid.substring(0, 8), 16) * 1000)
 
 inv = (key) -> (state) ->
     state[key] = !state[key]
@@ -60,15 +60,14 @@ JobLogs = React.createClass
         <div className=class_name ref='logs' onClick=@toggleOpen>
             {if @state.open
                 @state.logs.map (log) ->
-                    log.t ||= dateFromObjectId log.id
                     <div key=log.id>
                         <span>{log.body}</span>
-                        <span className='t'>{moment(log.t).fromNow(true)}</span>
+                        <span className='t'>{moment(oid2t log.id).fromNow(true)}</span>
                     </div>
             else if log = @state.logs.slice(-1)[0]
                 <div>
                     <span>{log.body}</span>
-                    <span className='t'>{moment(log.t).fromNow(true)}</span>
+                    <span className='t'>{moment(oid2t log.id).fromNow(true)}</span>
                 </div>
             }
         </div>

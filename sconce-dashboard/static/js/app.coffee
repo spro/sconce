@@ -109,7 +109,8 @@ JobsCharts = React.createClass
         @setState {}
 
     render: ->
-        width = window.innerWidth
+        SIDEBAR_WIDTH = 300
+        width = window.innerWidth - SIDEBAR_WIDTH
         height = window.innerHeight
 
         data = @state.jobs

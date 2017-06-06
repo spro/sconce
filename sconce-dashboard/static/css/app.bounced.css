@@ -159,6 +159,8 @@ pre {
   padding: 10px;
   width: 300px;
   overflow-y: scroll;
+  background: #000;
+  border-left: 1px solid #222;
 }
 
 .dropdown {

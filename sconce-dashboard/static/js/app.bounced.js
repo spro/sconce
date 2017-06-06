@@ -54999,7 +54999,7 @@ arguments[4][18][0].apply(exports,arguments)
 }));
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],235:[function(require,module,exports){
-var App, Dispatcher, Dropdown, DropdownOption, JobLogs, JobPage, JobSummary, JobsCharts, JobsDropdown, KefirBus, Link, MultiLineChart, Params, React, ReactDOM, ReloadableList, Router, Spinner, Store, color, d3, d3_color, inv, jobs$, moment, oid2t, routes, somata, tinycolor, _ref, _ref1,
+var App, Dispatcher, Dropdown, DropdownOption, JobLogs, JobPage, JobSummary, JobsCharts, JobsDropdown, KefirBus, Link, MultiLineChart, Params, React, ReactDOM, ReloadableList, Router, Spinner, Store, color, d3, d3_color, findJobs, inv, jobs$, moment, oid2t, routes, somata, tinycolor, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 React = require('react');
@@ -55025,7 +55025,7 @@ d3 = require('d3');
 tinycolor = require('tinycolor2');
 
 Store = {
-  job_name: 'test'
+  job_name: window.location.hash.split('/').slice(-1)[0]
 };
 
 d3_color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -55045,10 +55045,6 @@ inv = function(key) {
     return state[key] = !state[key];
   };
 };
-
-if (config.debug) {
-  require('./reload');
-}
 
 JobLogs = React.createClass({
   getInitialState: function() {
@@ -55081,10 +55077,15 @@ JobLogs = React.createClass({
     });
   },
   render: function() {
-    var class_name, log;
+    var class_name, log, _ref2;
     class_name = 'logs';
     if (this.state.open) {
       class_name += ' open';
+    }
+    if ((_ref2 = this.state.logs) != null) {
+      _ref2.forEach(function(log) {
+        return log.t || (log.t = oid2t(log.id));
+      });
     }
     return React.createElement("div", {
       "className": class_name,
@@ -55095,10 +55096,10 @@ JobLogs = React.createClass({
         "key": log.id
       }, React.createElement("span", null, log.body), React.createElement("span", {
         "className": 't'
-      }, moment(oid2t(log.id)).fromNow(true)));
+      }, moment(log.t).fromNow(true)));
     }) : (log = this.state.logs.slice(-1)[0]) ? React.createElement("div", null, React.createElement("span", null, log.body), React.createElement("span", {
       "className": 't'
-    }, moment(oid2t(log.id)).fromNow(true))) : void 0));
+    }, moment(log.t).fromNow(true))) : void 0));
   }
 });
 
@@ -55275,7 +55276,22 @@ Params = function(_arg) {
   }));
 };
 
-jobs$ = Dispatcher.find('jobs', {});
+findJobs = function(job_name) {
+  return Dispatcher.find('jobs', {
+    name: job_name
+  }).map(function(jobs) {
+    jobs.forEach(function(job) {
+      return job.started_at = oid2t(job.id);
+    });
+    return jobs.sort(function(a, b) {
+      return b.started_at - a.started_at;
+    });
+  });
+};
+
+jobs$ = KefirBus();
+
+jobs$.plug(findJobs(Store.job_name));
 
 somata.subscribe$('sconce:engine', "jobs").onValue(function(job) {
   return jobs$.createItem(job);
@@ -55402,7 +55418,7 @@ routes = {
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
 
-},{"./dispatcher":236,"./reload":237,"common-components":9,"d3":20,"kefir-bus":47,"moment":57,"react":214,"react-dom":63,"somata-socketio-client":215,"tinycolor2":1,"zamba-charts":224,"zamba-router":232}],236:[function(require,module,exports){
+},{"./dispatcher":236,"common-components":9,"d3":20,"kefir-bus":47,"moment":57,"react":214,"react-dom":63,"somata-socketio-client":215,"tinycolor2":1,"zamba-charts":224,"zamba-router":232}],236:[function(require,module,exports){
 var Dispatcher, KefirCollection, Store, fetch$, somata;
 
 fetch$ = require('kefir-fetch');
@@ -55462,16 +55478,4 @@ module.exports = Dispatcher = {
 };
 
 
-},{"kefir-collection":48,"kefir-fetch":49,"somata-socketio-client":215}],237:[function(require,module,exports){
-var reload, somata;
-
-somata = require('somata-socketio-client');
-
-reload = function() {
-  return window.location.reload(true);
-};
-
-somata.subscribe$('reloader', 'reload').onValue(reload);
-
-
-},{"somata-socketio-client":215}]},{},[235]);
+},{"kefir-collection":48,"kefir-fetch":49,"somata-socketio-client":215}]},{},[235]);

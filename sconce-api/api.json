@@ -14,7 +14,8 @@
                     "service": "sconce:data",
                     "method": "query",
                     "args": [
-                        "{jobs{items{id, name, params, hostname, logs{id, body}, points{x, y}}}}"
+                        "query($name: String){jobs(query: {name: $name}){items{id, name, params, hostname, logs{id, body}, points{x, y}}}}",
+                        {"name": "$req.query.name"}
                     ]
                 }
             ],

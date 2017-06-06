@@ -11,7 +11,7 @@ d3 = require 'd3'
 tinycolor = require 'tinycolor2'
 
 Store =
-    job_name: 'test'
+    job_name: window.location.hash.split('/').slice(-1)[0]
 
 d3_color = d3.scaleOrdinal(d3.schemeCategory10)
 
@@ -24,9 +24,6 @@ oid2t = (oid) ->
 
 inv = (key) -> (state) ->
     state[key] = !state[key]
-
-if config.debug
-    require './reload'
 
 JobLogs = React.createClass
     getInitialState: ->
@@ -57,17 +54,19 @@ JobLogs = React.createClass
         class_name = 'logs'
         if @state.open
             class_name += ' open'
+        @state.logs?.forEach (log) ->
+            log.t ||= oid2t log.id
         <div className=class_name ref='logs' onClick=@toggleOpen>
             {if @state.open
                 @state.logs.map (log) ->
                     <div key=log.id>
                         <span>{log.body}</span>
-                        <span className='t'>{moment(oid2t log.id).fromNow(true)}</span>
+                        <span className='t'>{moment(log.t).fromNow(true)}</span>
                     </div>
             else if log = @state.logs.slice(-1)[0]
                 <div>
                     <span>{log.body}</span>
-                    <span className='t'>{moment(oid2t log.id).fromNow(true)}</span>
+                    <span className='t'>{moment(log.t).fromNow(true)}</span>
                 </div>
             }
         </div>
@@ -175,7 +174,17 @@ Params = ({params}) ->
         }
     </div>
 
-jobs$ = Dispatcher.find('jobs', {})
+findJobs = (job_name) ->
+    Dispatcher.find('jobs', {name: job_name})
+        .map (jobs) ->
+            jobs.forEach (job) ->
+                job.started_at = oid2t job.id
+            # Most recent at top
+            return jobs.sort (a, b) -> b.started_at - a.started_at
+
+jobs$ = KefirBus()
+jobs$.plug findJobs Store.job_name
+
 somata.subscribe$('sconce:engine', "jobs")
     .onValue (job) -> jobs$.createItem job
 

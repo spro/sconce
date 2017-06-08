@@ -7,23 +7,22 @@ KefirBus = require 'kefir-bus'
 Dispatcher = require './dispatcher'
 {MultiLineChart} = require 'zamba-charts'
 somata = require 'somata-socketio-client'
-d3 = require 'd3'
-tinycolor = require 'tinycolor2'
+helpers = require './helpers'
+
+# Store
 
 Store =
     job_name: window.location.hash.split('/').slice(-1)[0]
 
-d3_color = d3.scaleOrdinal(d3.schemeCategory10)
+findJobs = (job_name) ->
+    Dispatcher.find('jobs', {name: job_name})
 
-color = (d) ->
-    c = d3_color d
-    tinycolor(c).lighten(20).toHexString()
+Store.jobs$ = findJobs Store.job_name
 
-oid2t = (oid) ->
-    new Date(parseInt(oid.substring(0, 8), 16) * 1000)
+somata.subscribe$('sconce:engine', "jobs")
+    .onValue (job) -> Store.jobs$.createItem job
 
-inv = (key) -> (state) ->
-    state[key] = !state[key]
+# Components
 
 JobLogs = React.createClass
     getInitialState: ->
@@ -55,7 +54,7 @@ JobLogs = React.createClass
         if @state.open
             class_name += ' open'
         @state.logs?.forEach (log) ->
-            log.t ||= oid2t log.id
+            log.t ||= helpers.oid2t log.id
         <div className=class_name ref='logs' onClick=@toggleOpen>
             {if @state.open
                 @state.logs.map (log) ->
@@ -77,7 +76,7 @@ JobsCharts = React.createClass
 
     componentDidMount: ->
         @subscriptions = {}
-        jobs$.onValue (jobs) =>
+        Store.jobs$.onValue (jobs) =>
             console.log 'jobs.onvalue'
             @setState {jobs}
             jobs.map (job) =>
@@ -124,7 +123,7 @@ JobsCharts = React.createClass
             data=data
             width=width
             height=height
-            color=color
+            color=helpers.color
             padding={left: 40, bottom: 40}
             axis_size=40
             follower=true
@@ -134,10 +133,10 @@ JobsCharts = React.createClass
 
 JobSummary = ({item}) ->
     removeJob = -> Dispatcher.remove 'jobs', item.id
-    toggleHidden = -> jobs$.updateItem item.id, hidden: !item.hidden
-    toggleCollapsed = -> jobs$.updateItem item.id, collapsed: !item.collapsed
+    toggleHidden = -> Store.jobs$.updateItem item.id, hidden: !item.hidden
+    toggleCollapsed = -> Store.jobs$.updateItem item.id, collapsed: !item.collapsed
 
-    item_color =  color(item.id)
+    item_color = helpers.color(item.id)
 
     class_name = 'item job-summary'
     if item.hidden
@@ -174,33 +173,6 @@ Params = ({params}) ->
         }
     </div>
 
-findJobs = (job_name) ->
-    Dispatcher.find('jobs', {name: job_name})
-        .map (jobs) ->
-            jobs.forEach (job) ->
-                job.started_at = oid2t job.id
-            # Most recent at top
-            return jobs.sort (a, b) -> b.started_at - a.started_at
-
-jobs$ = KefirBus()
-jobs$.plug findJobs Store.job_name
-
-somata.subscribe$('sconce:engine', "jobs")
-    .onValue (job) -> jobs$.createItem job
-
-App = React.createClass
-    getInitialState: ->
-        route: Router.route
-
-    componentDidMount: ->
-        Router.route$.onValue (route) =>
-            @setState {route}
-
-    render: ->
-        <div id='content'>
-            <Router.render routes=routes route=@state.route />
-        </div>
-
 JobPage = ({job_name}) ->
     Store.job_name = job_name
 
@@ -214,7 +186,7 @@ JobPage = ({job_name}) ->
 
             <JobsDropdown selected=job_name />
 
-            <ReloadableList loadItems={-> jobs$} filter={(j) -> j.name == job_name}>
+            <ReloadableList loadItems={-> Store.jobs$} filter={(j) -> j.name == job_name}>
                 <JobSummary />
             </ReloadableList>
         </div>
@@ -225,7 +197,7 @@ JobsDropdown = React.createClass
         options: []
 
     componentDidMount: ->
-        jobs$.onValue (jobs) =>
+        Store.jobs$.onValue (jobs) =>
             options = []
             counts = {}
             for job in jobs
@@ -250,6 +222,19 @@ DropdownOption = ({option}) ->
         <span className='count'>{option.count} jobs</span>
         <i className='fa fa-angle-down' />
     </span>
+
+App = React.createClass
+    getInitialState: ->
+        route: Router.route
+
+    componentDidMount: ->
+        Router.route$.onValue (route) =>
+            @setState {route}
+
+    render: ->
+        <div id='content'>
+            <Router.render routes=routes route=@state.route />
+        </div>
 
 routes =
     '/jobs/:job_name': <JobPage />

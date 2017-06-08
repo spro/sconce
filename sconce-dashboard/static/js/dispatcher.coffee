@@ -1,10 +1,17 @@
 fetch$ = require 'kefir-fetch'
 KefirCollection = require 'kefir-collection'
 somata = require 'somata-socketio-client'
+{oid2t} = require './helpers'
 
 fetch$.setDefaultOptions {base_url: config.api_base_url}
 
 Store = {}
+
+coerceJobs = (jobs) ->
+    jobs.forEach (job) ->
+        job.started_at = oid2t job.id
+    # Most recent at top
+    return jobs.sort (a, b) -> b.started_at - a.started_at
 
 module.exports = Dispatcher =
     find: (type, query) ->
@@ -13,6 +20,8 @@ module.exports = Dispatcher =
             .onValue (response) ->
                 items = response[type] or response
                 items = items.items
+                if type == 'jobs'
+                    items = coerceJobs items
                 Store[type].setItems items
         Store[type]
 

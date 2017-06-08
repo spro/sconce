@@ -54999,7 +54999,7 @@ arguments[4][18][0].apply(exports,arguments)
 }));
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],235:[function(require,module,exports){
-var App, Dispatcher, Dropdown, DropdownOption, JobLogs, JobPage, JobSummary, JobsCharts, JobsDropdown, KefirBus, Link, MultiLineChart, Params, React, ReactDOM, ReloadableList, Router, Spinner, Store, color, d3, d3_color, findJobs, inv, jobs$, moment, oid2t, routes, somata, tinycolor, _ref, _ref1,
+var App, Dispatcher, Dropdown, DropdownOption, JobLogs, JobPage, JobSummary, JobsCharts, JobsDropdown, KefirBus, Link, MultiLineChart, Params, React, ReactDOM, ReloadableList, Router, Spinner, Store, findJobs, helpers, moment, routes, somata, _ref, _ref1,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 React = require('react');
@@ -55020,31 +55020,23 @@ MultiLineChart = require('zamba-charts').MultiLineChart;
 
 somata = require('somata-socketio-client');
 
-d3 = require('d3');
-
-tinycolor = require('tinycolor2');
+helpers = require('./helpers');
 
 Store = {
   job_name: window.location.hash.split('/').slice(-1)[0]
 };
 
-d3_color = d3.scaleOrdinal(d3.schemeCategory10);
-
-color = function(d) {
-  var c;
-  c = d3_color(d);
-  return tinycolor(c).lighten(20).toHexString();
+findJobs = function(job_name) {
+  return Dispatcher.find('jobs', {
+    name: job_name
+  });
 };
 
-oid2t = function(oid) {
-  return new Date(parseInt(oid.substring(0, 8), 16) * 1000);
-};
+Store.jobs$ = findJobs(Store.job_name);
 
-inv = function(key) {
-  return function(state) {
-    return state[key] = !state[key];
-  };
-};
+somata.subscribe$('sconce:engine', "jobs").onValue(function(job) {
+  return Store.jobs$.createItem(job);
+});
 
 JobLogs = React.createClass({
   getInitialState: function() {
@@ -55084,7 +55076,7 @@ JobLogs = React.createClass({
     }
     if ((_ref2 = this.state.logs) != null) {
       _ref2.forEach(function(log) {
-        return log.t || (log.t = oid2t(log.id));
+        return log.t || (log.t = helpers.oid2t(log.id));
       });
     }
     return React.createElement("div", {
@@ -55111,7 +55103,7 @@ JobsCharts = React.createClass({
   },
   componentDidMount: function() {
     this.subscriptions = {};
-    jobs$.onValue((function(_this) {
+    Store.jobs$.onValue((function(_this) {
       return function(jobs) {
         console.log('jobs.onvalue');
         _this.setState({
@@ -55179,7 +55171,7 @@ JobsCharts = React.createClass({
       "data": data,
       "width": width,
       "height": height,
-      "color": color,
+      "color": helpers.color,
       "padding": {
         left: 40,
         bottom: 40
@@ -55206,16 +55198,16 @@ JobSummary = function(_arg) {
     return Dispatcher.remove('jobs', item.id);
   };
   toggleHidden = function() {
-    return jobs$.updateItem(item.id, {
+    return Store.jobs$.updateItem(item.id, {
       hidden: !item.hidden
     });
   };
   toggleCollapsed = function() {
-    return jobs$.updateItem(item.id, {
+    return Store.jobs$.updateItem(item.id, {
       collapsed: !item.collapsed
     });
   };
-  item_color = color(item.id);
+  item_color = helpers.color(item.id);
   class_name = 'item job-summary';
   if (item.hidden) {
     class_name += ' hidden';
@@ -55276,52 +55268,6 @@ Params = function(_arg) {
   }));
 };
 
-findJobs = function(job_name) {
-  return Dispatcher.find('jobs', {
-    name: job_name
-  }).map(function(jobs) {
-    jobs.forEach(function(job) {
-      return job.started_at = oid2t(job.id);
-    });
-    return jobs.sort(function(a, b) {
-      return b.started_at - a.started_at;
-    });
-  });
-};
-
-jobs$ = KefirBus();
-
-jobs$.plug(findJobs(Store.job_name));
-
-somata.subscribe$('sconce:engine', "jobs").onValue(function(job) {
-  return jobs$.createItem(job);
-});
-
-App = React.createClass({
-  getInitialState: function() {
-    return {
-      route: Router.route
-    };
-  },
-  componentDidMount: function() {
-    return Router.route$.onValue((function(_this) {
-      return function(route) {
-        return _this.setState({
-          route: route
-        });
-      };
-    })(this));
-  },
-  render: function() {
-    return React.createElement("div", {
-      "id": 'content'
-    }, React.createElement(Router.render, {
-      "routes": routes,
-      "route": this.state.route
-    }));
-  }
-});
-
 JobPage = function(_arg) {
   var job_name;
   job_name = _arg.job_name;
@@ -55341,7 +55287,7 @@ JobPage = function(_arg) {
     "selected": job_name
   }), React.createElement(ReloadableList, {
     "loadItems": (function() {
-      return jobs$;
+      return Store.jobs$;
     }),
     "filter": (function(j) {
       return j.name === job_name;
@@ -55356,7 +55302,7 @@ JobsDropdown = React.createClass({
     };
   },
   componentDidMount: function() {
-    return jobs$.onValue((function(_this) {
+    return Store.jobs$.onValue((function(_this) {
       return function(jobs) {
         var count, counts, job, name, options, _i, _len, _name, _ref2;
         options = [];
@@ -55411,6 +55357,31 @@ DropdownOption = function(_arg) {
   }));
 };
 
+App = React.createClass({
+  getInitialState: function() {
+    return {
+      route: Router.route
+    };
+  },
+  componentDidMount: function() {
+    return Router.route$.onValue((function(_this) {
+      return function(route) {
+        return _this.setState({
+          route: route
+        });
+      };
+    })(this));
+  },
+  render: function() {
+    return React.createElement("div", {
+      "id": 'content'
+    }, React.createElement(Router.render, {
+      "routes": routes,
+      "route": this.state.route
+    }));
+  }
+});
+
 routes = {
   '/jobs/:job_name': React.createElement(JobPage, null)
 };
@@ -55418,8 +55389,8 @@ routes = {
 ReactDOM.render(React.createElement(App, null), document.getElementById('app'));
 
 
-},{"./dispatcher":236,"common-components":9,"d3":20,"kefir-bus":47,"moment":57,"react":214,"react-dom":63,"somata-socketio-client":215,"tinycolor2":1,"zamba-charts":224,"zamba-router":232}],236:[function(require,module,exports){
-var Dispatcher, KefirCollection, Store, fetch$, somata;
+},{"./dispatcher":236,"./helpers":237,"common-components":9,"kefir-bus":47,"moment":57,"react":214,"react-dom":63,"somata-socketio-client":215,"zamba-charts":224,"zamba-router":232}],236:[function(require,module,exports){
+var Dispatcher, KefirCollection, Store, coerceJobs, fetch$, oid2t, somata;
 
 fetch$ = require('kefir-fetch');
 
@@ -55427,11 +55398,22 @@ KefirCollection = require('kefir-collection');
 
 somata = require('somata-socketio-client');
 
+oid2t = require('./helpers').oid2t;
+
 fetch$.setDefaultOptions({
   base_url: config.api_base_url
 });
 
 Store = {};
+
+coerceJobs = function(jobs) {
+  jobs.forEach(function(job) {
+    return job.started_at = oid2t(job.id);
+  });
+  return jobs.sort(function(a, b) {
+    return b.started_at - a.started_at;
+  });
+};
 
 module.exports = Dispatcher = {
   find: function(type, query) {
@@ -55444,6 +55426,9 @@ module.exports = Dispatcher = {
       var items;
       items = response[type] || response;
       items = items.items;
+      if (type === 'jobs') {
+        items = coerceJobs(items);
+      }
       return Store[type].setItems(items);
     });
     return Store[type];
@@ -55478,4 +55463,29 @@ module.exports = Dispatcher = {
 };
 
 
-},{"kefir-collection":48,"kefir-fetch":49,"somata-socketio-client":215}]},{},[235]);
+},{"./helpers":237,"kefir-collection":48,"kefir-fetch":49,"somata-socketio-client":215}],237:[function(require,module,exports){
+var color, d3, d3_color, oid2t, tinycolor;
+
+d3 = require('d3');
+
+tinycolor = require('tinycolor2');
+
+d3_color = d3.scaleOrdinal(d3.schemeCategory10);
+
+color = function(d) {
+  var c;
+  c = d3_color(d);
+  return tinycolor(c).lighten(20).toHexString();
+};
+
+oid2t = function(oid) {
+  return new Date(parseInt(oid.substring(0, 8), 16) * 1000);
+};
+
+module.exports = {
+  color: color,
+  oid2t: oid2t
+};
+
+
+},{"d3":20,"tinycolor2":1}]},{},[235]);
